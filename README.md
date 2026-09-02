@@ -18,3 +18,18 @@ For e.g:
 1. Respository only knows how to communicate with postgres.
 2. Service layer only handles the business logic
 3. Handler layer only handles the Request and Response.
+
+Moving forward as we progress we will be creating tasks and keeping a track on what we accomplished so far, where we go stuck, what bugs fucked up our night and where we outperformed.
+
+P.S. We will not be using any framework, we will use mux from go.
+
+## Day 1: (Sept 2, 2026)
+
+Tasks for Day 1:
+
+1. Setup the folder structure. ✅
+2. Create the server ✅
+   - We faced a blocker here, we were not able to fetch the PORT from .env file. At that moment we realised we need godotenv package to load env variables from the .env file.
+
+3. Setup graceful shutdown
+4. Try to use a go routine
