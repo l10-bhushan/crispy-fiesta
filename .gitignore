@@ -1,0 +1,35 @@
+# Compiled binaries and local executables
+# (Go creates these when running 'go build')
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Test binaries and coverage artifacts
+*.test
+*.out
+*.coverprofile
+profile.cov
+
+# Dependency directories
+# (Uncomment if you explicitly vendor your dependencies)
+# vendor/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Local environment variables
+.env
+.env.local
+
+# Common IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
