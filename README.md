@@ -43,3 +43,5 @@ Tasks for Day 2:
 5. Create a urls table to record url data ✅
 6. Create config and database folder and write config and database files ✅
 7. Bring the Pool connection in main.go ✅
+8. Create models for CreateShortURL response and CreateShortURL request ✅
+9. Create the infrastructure for our application ( handler , service , repository )
