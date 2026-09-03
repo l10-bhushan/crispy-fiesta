@@ -12,12 +12,16 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/l10-bhushan/crispy-fiesta/internal/config"
+	"github.com/l10-bhushan/crispy-fiesta/internal/database"
 	"github.com/l10-bhushan/crispy-fiesta/internal/handlers"
 	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
 )
 
 func main() {
 
+	// Creating a context
+	ctx := context.Background()
 	// We are using a package godotenv to load environment variables from our .env file
 	// os.Getenv simple won't give you the environment variables.
 
@@ -25,17 +29,18 @@ func main() {
 		fmt.Println("No .env file found, falling back to environment variables")
 	}
 
-	// Loading the port using os.Getenv
-	port := os.Getenv("PORT")
+	// Here, we are calling the Load function that will return us the Config struct
+	// with database URL and PORT
+	cfg := config.Load()
 
-	// If we don't get any value from port we add ourselves
-	if port == "" {
-		port = "8000"
+	// Creating the pool connection
+	pool, err := database.NewPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// Appending : to port
-	port = ":" + port
-
+	// This is important it will close the connection to db where program exits
+	defer pool.Close()
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
 	mux := http.NewServeMux()
@@ -64,7 +69,7 @@ func main() {
 	// Addr: takes the port no
 	// Handler takes the router
 	server := http.Server{
-		Addr:    port,
+		Addr:    ":" + cfg.HTTPPort, // Appending : to port
 		Handler: handler,
 	}
 
@@ -78,7 +83,7 @@ func main() {
 	// then the main with that we can catch the SIGINT and SIGTERM signals and shutdown our server.
 	go func() {
 		// Information for the user.
-		fmt.Printf("Server up and running on PORT: %s\n", port)
+		fmt.Printf("Server up and running on PORT: %s\n", cfg.HTTPPort)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("server error: %v", err)
 		}

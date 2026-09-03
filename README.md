@@ -39,5 +39,7 @@ Tasks for Day 2:
 1. Create separate handlers ✅
 2. Create logger middleware ✅
 3. Create a postgres instant in docker ✅
-4. Create migration folder to keep all the database migrations in one place
-5. Create a urls table to record url data
+4. Create migration folder to keep all the database migrations in one place ✅
+5. Create a urls table to record url data ✅
+6. Create config and database folder and write config and database files ✅
+7. Bring the Pool connection in main.go ✅
