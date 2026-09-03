@@ -13,6 +13,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/l10-bhushan/crispy-fiesta/internal/handlers"
+	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
 )
 
 func main() {
@@ -38,12 +39,25 @@ func main() {
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
 	mux := http.NewServeMux()
+	// Adding middleware to the router
+	// Each middleware should wrap the previous handler so the chain is preserved.
+	// Order: RequestId -> Logger -> Recovery
+	handler := middleware.Logger(mux)
+	handler = middleware.Recovery(handler)
+	handler = middleware.RequestId(handler)
+
+	// The sequence of above middleware will be
+	// RequestID - will fetch the x-request-id from the header if available, or generate one and store it in request context.
+	// Logger - Logs the request infromation such as method, path , requestID.
+	// Recovery - uses defer and recover to tackle panics in our code.
 
 	// Adding a route to our router
 	// A simple health router
 	mux.HandleFunc("GET /health", handlers.HealthHandler)
 	// A simple version router
 	mux.HandleFunc("GET /version", handlers.VersionHandler)
+	// A simple panic handler to test "Recovery" middleware
+	mux.HandleFunc("GET /panic", handlers.PanicHandler)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
@@ -51,7 +65,7 @@ func main() {
 	// Handler takes the router
 	server := http.Server{
 		Addr:    port,
-		Handler: mux,
+		Handler: handler,
 	}
 
 	// Starting the server as well as cheking for errors.
@@ -91,7 +105,7 @@ func main() {
 	// Meanwhile, the server is running in it's separate go routine
 	<-shutdownSignal
 
-	log.Printf("Shutdown signal received; %v", shutdownSignal)
+	log.Printf("Shutdown signal received: %v", shutdownSignal)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
