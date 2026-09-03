@@ -31,5 +31,5 @@ Tasks for Day 1:
 2. Create the server ✅
    - We faced a blocker here, we were not able to fetch the PORT from .env file. At that moment we realised we need godotenv package to load env variables from the .env file.
 
-3. Setup graceful shutdown
-4. Try to use a go routine
+3. Setup graceful shutdown ✅
+4. Try to use a go routine ✅

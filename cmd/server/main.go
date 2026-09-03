@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -53,11 +58,55 @@ func main() {
 		Handler: mux,
 	}
 
-	// Information for the user.
-	fmt.Printf("Server up and running on PORT: %s\n", port)
-
 	// Starting the server as well as cheking for errors.
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	// Here we are using a go routine because we don't want our server to run on the main function
+	// for eg: if we have two statements
+	// server.ListenAndServe
+	// print("hello")
+	// The program would never reach the hello part because our main function is occupied by the server
+	// So, if we want a graceful shutdown in that case, we separate the server onto a different go routine
+	// then the main with that we can catch the SIGINT and SIGTERM signals and shutdown our server.
+	go func() {
+		// Information for the user.
+		fmt.Printf("Server up and running on PORT: %s\n", port)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	// This creates a channel with type os.Signal, and the 1 denotes the capacity of the channel
+	// to hold only one signal at a time.
+	shutdownSignal := make(chan os.Signal, 1)
+
+	// This basically means that whenever the program receives one of the signals store it in shutdownSignal
+	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
+
+	// This means "Receive a signal from the channels"
+	// So, it's basically
+	// 	main
+	//  ↓
+	// server started
+	//  ↓
+	// register signals
+	//  ↓
+	// <-shutdownSignal
+	//  ↓
+	// WAITING...
+	// Meanwhile, the server is running in it's separate go routine
+	<-shutdownSignal
+
+	log.Printf("Shutdown signal received; %v", shutdownSignal)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	defer cancel()
+
+	// This tells the server don't accept new requests and gracefully shutdown.
+	// If a request takes more than the context time limit, the graceful shutdown returns an error
+	// but that does not mean it didn't shutdown, it means it exceeded the limit of the context.
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("server failed to shutdown : %v", err)
 	}
+
+	log.Println("server stopped gracefully")
 }
