@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/l10-bhushan/crispy-fiesta/internal/handlers"
 )
 
 func main() {
@@ -41,13 +41,9 @@ func main() {
 
 	// Adding a route to our router
 	// A simple health router
-	mux.Handle("GET /health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{
-			"status": "ok",
-		})
-	}))
+	mux.HandleFunc("GET /health", handlers.HealthHandler)
+	// A simple version router
+	mux.HandleFunc("GET /version", handlers.VersionHandler)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler

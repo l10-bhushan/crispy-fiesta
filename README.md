@@ -33,3 +33,11 @@ Tasks for Day 1:
 
 3. Setup graceful shutdown ✅
 4. Try to use a go routine ✅
+
+Tasks for Day 2:
+
+1. Create separate handlers ✅
+2. Create logger middleware
+3. Create a postgres instant in docker
+4. Create migration folder to keep all the database migrations in one place
+5. Create a urls table to record url data
