@@ -16,6 +16,7 @@ import (
 	"github.com/l10-bhushan/crispy-fiesta/internal/database"
 	"github.com/l10-bhushan/crispy-fiesta/internal/handlers"
 	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
+	"github.com/l10-bhushan/crispy-fiesta/internal/repository"
 )
 
 func main() {
@@ -41,6 +42,11 @@ func main() {
 
 	// This is important it will close the connection to db where program exits
 	defer pool.Close()
+
+	// Here, we initialize the repository layer
+	urlRepo := repository.NewURLRepository(pool)
+	log.Print(urlRepo)
+
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
 	mux := http.NewServeMux()

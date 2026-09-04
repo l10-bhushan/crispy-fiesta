@@ -49,6 +49,6 @@ P.S. We will not be using any framework, we will use mux from go.
 
 1. Create the infrastructure for our application ( handler , service , repository ) ✅
 2. Create the repository structure ✅
-3. Create the service structure
+3. Create the service structure ✅
 4. Create the handler structure
 5. Create a basic POST /create api flow to create a shortURL.
