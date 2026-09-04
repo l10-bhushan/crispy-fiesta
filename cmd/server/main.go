@@ -17,6 +17,7 @@ import (
 	"github.com/l10-bhushan/crispy-fiesta/internal/handlers"
 	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
 	"github.com/l10-bhushan/crispy-fiesta/internal/repository"
+	"github.com/l10-bhushan/crispy-fiesta/internal/service"
 )
 
 func main() {
@@ -45,7 +46,11 @@ func main() {
 
 	// Here, we initialize the repository layer
 	urlRepo := repository.NewURLRepository(pool)
-	log.Print(urlRepo)
+
+	// Here, we initialize the service layer
+	urlService := service.NewURlService(urlRepo)
+
+	urlHandler := handlers.NewURLHandler(urlService)
 
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
@@ -69,7 +74,10 @@ func main() {
 	mux.HandleFunc("GET /version", handlers.VersionHandler)
 	// A simple panic handler to test "Recovery" middleware
 	mux.HandleFunc("GET /panic", handlers.PanicHandler)
-
+	// Route for creating short code
+	mux.HandleFunc("POST /v1/api/create", urlHandler.CreateShortCode)
+	// Route to fetch data
+	mux.HandleFunc("GET /v1/api/", urlHandler.FetchURLData)
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
 	// Addr: takes the port no
