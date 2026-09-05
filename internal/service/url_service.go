@@ -22,7 +22,7 @@ func NewURlService(repo *repository.URLRepository) *URLService {
 	}
 }
 
-// Create function
+// Create Service
 func (s *URLService) Create(ctx context.Context, originalURL string) (*models.CreateShortURLResponse, error) {
 	// Validating the URL using our custom validator
 	err := utils.ValidateURL(originalURL)
@@ -42,7 +42,7 @@ func (s *URLService) Create(ctx context.Context, originalURL string) (*models.Cr
 	return data, nil
 }
 
-// Fetch function
+// Redirect service
 func (s *URLService) GetOriginalURL(ctx context.Context, shortCode string) (*models.CreateShortURLResponse, error) {
 	if shortCode == "" {
 		return nil, errors.New("short code cannot be empty")
@@ -54,4 +54,42 @@ func (s *URLService) GetOriginalURL(ctx context.Context, shortCode string) (*mod
 	}
 
 	return data, nil
+}
+
+// Fetch all Service
+func (s *URLService) GetAll(ctx context.Context) ([]models.CreateShortURLResponse, error) {
+	data, err := s.repo.FetchAllData(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// Fetch data by Id service
+func (s *URLService) FetchByID(ctx context.Context, id string) (*models.CreateShortURLResponse, error) {
+	if id == "" {
+		return nil, errors.New("bad request")
+	}
+	data, err := s.repo.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// Delete data by Id service
+func (s *URLService) DeleteById(ctx context.Context, id string) error {
+
+	if id == "" {
+		return errors.New("bad request")
+	}
+
+	err := s.repo.DeleteById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

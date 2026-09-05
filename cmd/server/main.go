@@ -76,8 +76,14 @@ func main() {
 	mux.HandleFunc("GET /panic", handlers.PanicHandler)
 	// Route for creating short code
 	mux.HandleFunc("POST /v1/api/create", urlHandler.CreateShortCode)
+	// Route to fetch all urls
+	mux.HandleFunc("GET /v1/api/", urlHandler.FetchAllData)
+	// Route to fetch url data using id
+	mux.HandleFunc("GET /v1/api/{id}", urlHandler.FetchById)
+	// Route to delete by id
+	mux.HandleFunc("DELETE /v1/api/{id}", urlHandler.DeleteById)
 	// Route to fetch data
-	mux.HandleFunc("GET /v1/api/{shortCode}", urlHandler.Redirect)
+	mux.HandleFunc("GET /{shortCode}", urlHandler.Redirect)
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
 	// Addr: takes the port no

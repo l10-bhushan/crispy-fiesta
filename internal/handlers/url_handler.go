@@ -74,3 +74,54 @@ func (h *URLHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 	// Redirecting the user to correct site
 	http.Redirect(w, r, urlData.URL, http.StatusFound)
 }
+
+// Fetch all handler
+func (h *URLHandler) FetchAllData(w http.ResponseWriter, r *http.Request) {
+	data, err := h.service.GetAll(r.Context())
+	if err != nil {
+		utils.WriteJsonResponse(w, http.StatusNotFound, map[string]string{
+			"error": "failed to fetch data",
+		})
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]any{
+		"status": "success",
+		"data":   data,
+	})
+}
+
+// Fetch by id handler
+func (h *URLHandler) FetchById(w http.ResponseWriter, r *http.Request) {
+	id := string(r.PathValue("id"))
+
+	data, err := h.service.FetchByID(r.Context(), id)
+	if err != nil {
+		utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]any{
+		"status": "success",
+		"data":   data,
+	})
+}
+
+// Delete by Id handler
+func (h *URLHandler) DeleteById(w http.ResponseWriter, r *http.Request) {
+	id := string(r.PathValue("id"))
+
+	err := h.service.DeleteById(r.Context(), id)
+	if err != nil {
+		utils.WriteJsonResponse(w, http.StatusBadGateway, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]string{
+		"status": "success",
+	})
+}

@@ -72,10 +72,11 @@ func (r *URLRepository) FindByShortCode(ctx context.Context, short_code string) 
 func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortURLResponse, error) {
 
 	// Query to fetch all the records from the urls table
-	query := `SELECT * FROM urls ORDER BY DESC`
+	query := `SELECT * FROM urls ORDER BY created_at DESC`
 
 	// Executing the query using r.db.Query, returns pgx.rows
 	rows, err := r.db.Query(ctx, query)
+
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 		var url models.CreateShortURLResponse
 
 		// Populating the data into respective fields
-		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt)
+		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
 		if err != nil {
 			return nil, err
 		}
@@ -123,4 +124,17 @@ func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateS
 	}
 
 	return url, nil
+}
+
+// Delete URL data using the id
+func (r *URLRepository) DeleteById(ctx context.Context, id string) error {
+
+	query := `DELETE FROM urls WHERE id = $1`
+
+	_, err := r.db.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
