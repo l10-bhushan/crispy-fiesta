@@ -3,8 +3,11 @@ package repository
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 )
 
@@ -42,7 +45,12 @@ func (r *URLRepository) Create(ctx context.Context, shortCode string, originalUR
 	// Using db.QueryRow to execute the query and using scan to store the returning values into our struct instance
 	err := r.db.QueryRow(ctx, query, shortCode, originalURL).Scan(&urlResponse.Id, &urlResponse.CreatedAt, &urlResponse.ExpiresAt)
 	if err != nil {
-		return nil, err
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apperrors.ErrorInternal
+		}
+
+		return nil, apperrors.ErrorInternal
 	}
 
 	return urlResponse, nil
@@ -59,7 +67,10 @@ func (r *URLRepository) FindByShortCode(ctx context.Context, short_code string) 
 	// QueryRow to fetch data and using scan to store data in urlResponse instance
 	err := r.db.QueryRow(ctx, query, short_code).Scan(&urlResponse.Id, &urlResponse.ShortCode, &urlResponse.URL, &urlResponse.CreatedAt)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apperrors.ErrorNotFound
+		}
+		return nil, apperrors.ErrorInternal
 	}
 
 	return urlResponse, nil

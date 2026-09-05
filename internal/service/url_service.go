@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/repository"
 	"github.com/l10-bhushan/crispy-fiesta/internal/utils"
@@ -43,9 +44,9 @@ func (s *URLService) Create(ctx context.Context, originalURL string) (*models.Cr
 }
 
 // Redirect service
-func (s *URLService) GetOriginalURL(ctx context.Context, shortCode string) (*models.CreateShortURLResponse, error) {
+func (s *URLService) Redirect(ctx context.Context, shortCode string) (*models.CreateShortURLResponse, error) {
 	if shortCode == "" {
-		return nil, errors.New("short code cannot be empty")
+		return nil, apperrors.ErrorInvalidInput
 	}
 
 	data, err := s.repo.FindByShortCode(ctx, shortCode)
@@ -57,7 +58,7 @@ func (s *URLService) GetOriginalURL(ctx context.Context, shortCode string) (*mod
 }
 
 // Fetch all Service
-func (s *URLService) GetAll(ctx context.Context) ([]models.CreateShortURLResponse, error) {
+func (s *URLService) FetchAllData(ctx context.Context) ([]models.CreateShortURLResponse, error) {
 	data, err := s.repo.FetchAllData(ctx)
 	if err != nil {
 		return nil, err

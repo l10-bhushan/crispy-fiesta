@@ -55,19 +55,11 @@ func (h *URLHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 
 	// Getting the shortCode from path parameter
 	shortCode := r.PathValue("shortCode")
-	if shortCode == "" {
-		utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
-			"error": "shortCode cannot be empty",
-		})
-		return
-	}
 
 	// Calling the service to retrieve the complete information
-	urlData, err := h.service.GetOriginalURL(r.Context(), shortCode)
+	urlData, err := h.service.Redirect(r.Context(), shortCode)
 	if err != nil {
-		utils.WriteJsonResponse(w, http.StatusNotFound, map[string]string{
-			"error": "URL not found",
-		})
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -77,7 +69,7 @@ func (h *URLHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 
 // Fetch all handler
 func (h *URLHandler) FetchAllData(w http.ResponseWriter, r *http.Request) {
-	data, err := h.service.GetAll(r.Context())
+	data, err := h.service.FetchAllData(r.Context())
 	if err != nil {
 		utils.WriteJsonResponse(w, http.StatusNotFound, map[string]string{
 			"error": "failed to fetch data",
