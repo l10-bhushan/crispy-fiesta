@@ -3,9 +3,7 @@ package repository
 
 import (
 	"context"
-	"errors"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
@@ -45,12 +43,7 @@ func (r *URLRepository) Create(ctx context.Context, shortCode string, originalUR
 	// Using db.QueryRow to execute the query and using scan to store the returning values into our struct instance
 	err := r.db.QueryRow(ctx, query, shortCode, originalURL).Scan(&urlResponse.Id, &urlResponse.CreatedAt, &urlResponse.ExpiresAt)
 	if err != nil {
-
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, apperrors.ErrorInternal
-		}
-
-		return nil, apperrors.ErrorInternal
+		return nil, apperrors.HandleDBErrors(err)
 	}
 
 	return urlResponse, nil
@@ -67,10 +60,7 @@ func (r *URLRepository) FindByShortCode(ctx context.Context, short_code string) 
 	// QueryRow to fetch data and using scan to store data in urlResponse instance
 	err := r.db.QueryRow(ctx, query, short_code).Scan(&urlResponse.Id, &urlResponse.ShortCode, &urlResponse.URL, &urlResponse.CreatedAt)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, apperrors.ErrorNotFound
-		}
-		return nil, apperrors.ErrorInternal
+		return nil, apperrors.HandleDBErrors(err)
 	}
 
 	return urlResponse, nil
@@ -89,7 +79,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 	rows, err := r.db.Query(ctx, query)
 
 	if err != nil {
-		return nil, err
+		return nil, apperrors.HandleDBErrors(err)
 	}
 
 	// closing the connection after return
@@ -105,7 +95,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 		// Populating the data into respective fields
 		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
 		if err != nil {
-			return nil, err
+			return nil, apperrors.HandleDBErrors(err)
 		}
 
 		// appending url to urls
@@ -113,7 +103,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, apperrors.HandleDBErrors(err)
 	}
 
 	return urls, nil
@@ -131,7 +121,7 @@ func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateS
 	// Querying from the db
 	err := r.db.QueryRow(ctx, query, id).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.HandleDBErrors(err)
 	}
 
 	return url, nil
@@ -144,7 +134,7 @@ func (r *URLRepository) DeleteById(ctx context.Context, id string) error {
 
 	_, err := r.db.Exec(ctx, query, id)
 	if err != nil {
-		return err
+		return apperrors.HandleDBErrors(err)
 	}
 
 	return nil

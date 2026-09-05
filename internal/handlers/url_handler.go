@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/service"
 	"github.com/l10-bhushan/crispy-fiesta/internal/utils"
@@ -28,18 +29,14 @@ func (h *URLHandler) CreateShortCode(w http.ResponseWriter, r *http.Request) {
 	// Decoding the r.Body into the instance we created
 	// This will take help of `json:"url"` we wrote in the struct, the Decode would help us to generate struct.
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid request body",
-		})
+		utils.WriteError(w, apperrors.ErrorInvalidInput)
 		return
 	}
 
 	// Calling the service to start the process of creation
 	urlData, err := h.service.Create(r.Context(), req.Url)
 	if err != nil {
-		utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
-			"error": err.Error(),
-		})
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -71,9 +68,7 @@ func (h *URLHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 func (h *URLHandler) FetchAllData(w http.ResponseWriter, r *http.Request) {
 	data, err := h.service.FetchAllData(r.Context())
 	if err != nil {
-		utils.WriteJsonResponse(w, http.StatusNotFound, map[string]string{
-			"error": "failed to fetch data",
-		})
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -89,9 +84,7 @@ func (h *URLHandler) FetchById(w http.ResponseWriter, r *http.Request) {
 
 	data, err := h.service.FetchByID(r.Context(), id)
 	if err != nil {
-		utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
-			"error": err.Error(),
-		})
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -107,9 +100,7 @@ func (h *URLHandler) DeleteById(w http.ResponseWriter, r *http.Request) {
 
 	err := h.service.DeleteById(r.Context(), id)
 	if err != nil {
-		utils.WriteJsonResponse(w, http.StatusBadGateway, map[string]string{
-			"error": err.Error(),
-		})
+		utils.WriteError(w, err)
 		return
 	}
 

@@ -3,7 +3,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
@@ -70,7 +69,7 @@ func (s *URLService) FetchAllData(ctx context.Context) ([]models.CreateShortURLR
 // Fetch data by Id service
 func (s *URLService) FetchByID(ctx context.Context, id string) (*models.CreateShortURLResponse, error) {
 	if id == "" {
-		return nil, errors.New("bad request")
+		return nil, apperrors.ErrorInvalidInput
 	}
 	data, err := s.repo.GetById(ctx, id)
 	if err != nil {
@@ -84,7 +83,7 @@ func (s *URLService) FetchByID(ctx context.Context, id string) (*models.CreateSh
 func (s *URLService) DeleteById(ctx context.Context, id string) error {
 
 	if id == "" {
-		return errors.New("bad request")
+		return apperrors.ErrorInvalidInput
 	}
 
 	err := s.repo.DeleteById(ctx, id)

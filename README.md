@@ -57,7 +57,7 @@ P.S. We will not be using any framework, we will use mux from go.
 1. Create a basic POST /create api flow to create a shortURL. ✅
 2. Test the API for Create and Fetch routes. ✅
 3. Add a redirect route. ✅
-4. Create production level changes to error handling and validation.
+4. Create production level changes to error handling and validation. ✅
 5. Add user entity to our url shortner, discuss the relationship between the two tables urls and users.
 6. Create the API flow for user, ( repository, service , handler ).
 7. Create CRUD APIs for user table.

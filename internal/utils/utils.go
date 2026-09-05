@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"errors"
 	"net/url"
+
+	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 )
 
 // Utility function to validate URL
@@ -13,11 +15,11 @@ func ValidateURL(value string) error {
 	// Using url.ParseRequestURI that will check if URL is correct
 	parsedURL, err := url.ParseRequestURI(value)
 	if err != nil {
-		return errors.New("Invalid URL")
+		return apperrors.ErrorInvalidInput
 	}
 
 	if parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return errors.New("Invalid URL")
+		return apperrors.ErrorInvalidInput
 	}
 
 	return nil
@@ -35,7 +37,7 @@ func GenerateShortCode() (string, error) {
 
 	// rand.Read fills the bytes array with random numbers
 	if _, err := rand.Read(bytes); err != nil {
-		return "", errors.New("failed to created short code")
+		return "", errors.New("failed to create short code")
 	}
 
 	// Filling in the array with charachters
