@@ -77,7 +77,7 @@ func main() {
 	// Route for creating short code
 	mux.HandleFunc("POST /v1/api/create", urlHandler.CreateShortCode)
 	// Route to fetch data
-	mux.HandleFunc("GET /v1/api/", urlHandler.FetchURLData)
+	mux.HandleFunc("GET /v1/api/{shortCode}", urlHandler.Redirect)
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
 	// Addr: takes the port no
