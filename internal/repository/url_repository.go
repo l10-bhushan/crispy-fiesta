@@ -64,3 +64,63 @@ func (r *URLRepository) FindByShortCode(ctx context.Context, short_code string) 
 
 	return urlResponse, nil
 }
+
+// Fetch all the url data from the db
+// Here, we are not using pointer return coz we can return nil when an error for slice
+// in the above example if we don't use pointer we cannot return nil, coz retuning nil for an empty
+// struct won't compile
+func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortURLResponse, error) {
+
+	// Query to fetch all the records from the urls table
+	query := `SELECT * FROM urls ORDER BY DESC`
+
+	// Executing the query using r.db.Query, returns pgx.rows
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// closing the connection after return
+	defer rows.Close()
+
+	// Creating an array instance
+	var urls []models.CreateShortURLResponse
+
+	// looping through the rows
+	for rows.Next() {
+		var url models.CreateShortURLResponse
+
+		// Populating the data into respective fields
+		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		// appending url to urls
+		urls = append(urls, url)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return urls, nil
+}
+
+// Fetch url data using the id
+func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateShortURLResponse, error) {
+
+	// Create an instance and return the address the address is store in url
+	url := &models.CreateShortURLResponse{}
+
+	// Query to fetch url data from the urls table
+	query := `SELECT id, short_code , original_url , created_at, expires_at FROM urls WHERE id = $1`
+
+	// Querying from the db
+	err := r.db.QueryRow(ctx, query, id).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return url, nil
+}
