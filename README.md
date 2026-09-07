@@ -81,3 +81,10 @@ Table for User
 2. Create the API flow for user, ( repository, service , handler ). ✅
 3. Create CRUD APIs for user table. ✅
 4. Test the user Apis. ✅
+
+### Tasks for Day 6:
+
+1. Understand and Implement JWT
+2. Create middleware for JWT
+3. Add middleware for respective routes. (protected routes)
+4. Learn concepts on concurrency, cache and optimisation
