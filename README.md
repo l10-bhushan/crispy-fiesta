@@ -23,6 +23,22 @@ Moving forward as we progress we will be creating tasks and keeping a track on w
 
 P.S. We will not be using any framework, we will use mux from go.
 
+Table for URL
+1: id
+2: short_code
+3: original_url
+4: created_at
+5: expires_at
+6: user_id REFERENCES users
+
+Table for User
+1: id
+2: first_name
+3: last_name
+4: email
+5: password
+5: created_at
+
 ## Day 1: (Sept 2, 2026)
 
 ### Tasks for Day 1:
@@ -58,7 +74,10 @@ P.S. We will not be using any framework, we will use mux from go.
 2. Test the API for Create and Fetch routes. ✅
 3. Add a redirect route. ✅
 4. Create production level changes to error handling and validation. ✅
-5. Add user entity to our url shortner, discuss the relationship between the two tables urls and users.
-6. Create the API flow for user, ( repository, service , handler ).
-7. Create CRUD APIs for user table.
-8. Test the user Apis
+
+### Tasks for Day 5:
+
+1. Add user entity to our url shortner, discuss the relationship between the two tables urls and users.
+2. Create the API flow for user, ( repository, service , handler ).
+3. Create CRUD APIs for user table.
+4. Test the user Apis
