@@ -93,7 +93,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 		var url models.CreateShortURLResponse
 
 		// Populating the data into respective fields
-		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
+		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt, &url.UserId)
 		if err != nil {
 			return nil, apperrors.HandleDBErrors(err)
 		}

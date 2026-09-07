@@ -44,13 +44,18 @@ func main() {
 	// This is important it will close the connection to db where program exits
 	defer pool.Close()
 
+	// API flow for urls
 	// Here, we initialize the repository layer
 	urlRepo := repository.NewURLRepository(pool)
-
 	// Here, we initialize the service layer
 	urlService := service.NewURlService(urlRepo)
-
+	// Here, we initialize the handler layer
 	urlHandler := handlers.NewURLHandler(urlService)
+
+	// API flow for users
+	userRepo := repository.NewUserRepository(pool)
+	userService := service.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
 
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
@@ -74,6 +79,8 @@ func main() {
 	mux.HandleFunc("GET /version", handlers.VersionHandler)
 	// A simple panic handler to test "Recovery" middleware
 	mux.HandleFunc("GET /panic", handlers.PanicHandler)
+
+	// API for urls
 	// Route for creating short code
 	mux.HandleFunc("POST /v1/api/create", urlHandler.CreateShortCode)
 	// Route to fetch all urls
@@ -84,6 +91,13 @@ func main() {
 	mux.HandleFunc("DELETE /v1/api/{id}", urlHandler.DeleteById)
 	// Route to fetch data
 	mux.HandleFunc("GET /{shortCode}", urlHandler.Redirect)
+
+	// API for users
+	// find by email
+	mux.HandleFunc("POST /v1/api/user/", userHandler.FindByEmail)
+	// Register user
+	mux.HandleFunc("POST /v1/api/user/register", userHandler.RegisterUser)
+
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
 	// Addr: takes the port no

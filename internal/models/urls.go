@@ -14,4 +14,5 @@ type CreateShortURLResponse struct {
 	URL       string     `json:"original_url"`
 	CreatedAt time.Time  `json:"created_at"`
 	ExpiresAt *time.Time `json:"expires_at"` // we use *time.Time here coz a pointer can be nil
+	UserId    *int       `json:"user_id"`
 }

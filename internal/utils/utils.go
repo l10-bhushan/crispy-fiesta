@@ -4,9 +4,12 @@ import (
 	"crypto/rand"
 	"errors"
 	"net/url"
+	"regexp"
 
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 )
+
+var emailRegExp = regexp.MustCompile(`(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$`)
 
 // Utility function to validate URL
 // We will use the in-build net/url package it will return error if any or nil if successfull
@@ -46,4 +49,8 @@ func GenerateShortCode() (string, error) {
 	}
 
 	return string(bytes), nil
+}
+
+func ValidateEmail(value string) bool {
+	return emailRegExp.MatchString(value)
 }
