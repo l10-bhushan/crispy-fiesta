@@ -79,5 +79,5 @@ Table for User
 
 1. Add user entity to our url shortner, discuss the relationship between the two tables urls and users. ✅
 2. Create the API flow for user, ( repository, service , handler ). ✅
-3. Create CRUD APIs for user table.
-4. Test the user Apis
+3. Create CRUD APIs for user table. ✅
+4. Test the user Apis. ✅

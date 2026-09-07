@@ -132,9 +132,13 @@ func (r *URLRepository) DeleteById(ctx context.Context, id string) error {
 
 	query := `DELETE FROM urls WHERE id = $1`
 
-	_, err := r.db.Exec(ctx, query, id)
+	commandTag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return apperrors.HandleDBErrors(err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return apperrors.ErrorNotFound
 	}
 
 	return nil

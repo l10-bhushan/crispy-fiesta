@@ -102,7 +102,7 @@ func main() {
 	// Login user
 	mux.HandleFunc("POST /v1/api/user/login", userHandler.Login)
 	// Delete user
-	mux.HandleFunc("POST /v1/api/user/{id}", userHandler.DeleteUser)
+	mux.HandleFunc("DELETE /v1/api/user/{id}", userHandler.DeleteUser)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler

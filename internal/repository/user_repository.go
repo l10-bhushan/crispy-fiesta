@@ -93,9 +93,13 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id string) error {
 	query := "DELETE FROM users WHERE id = $1"
 
 	// Executing the query
-	_, err := r.db.Exec(ctx, query)
+	commandTag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
 		return apperrors.HandleDBErrors(err)
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return apperrors.ErrorNotFound
 	}
 
 	return nil
