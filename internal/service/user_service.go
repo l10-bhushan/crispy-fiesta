@@ -20,6 +20,18 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	}
 }
 
+// Service to fetch all users
+func (s *UserService) FetchAll(ctx context.Context) ([]models.UserResponse, error) {
+
+	users, err := s.repo.FetchAll(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (s *UserService) FindByEmail(ctx context.Context, email string) (*models.UserResponse, error) {
 	// Validating the email
 	validEmail := utils.ValidateEmail(email)
@@ -66,4 +78,16 @@ func (s *UserService) RegisterUser(ctx context.Context, userRequest models.Regis
 	}
 
 	return createdUser, nil
+}
+
+// Service to delete User
+func (s *UserService) DeleteUser(ctx context.Context, id string) error {
+
+	err := s.repo.DeleteUser(ctx, id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

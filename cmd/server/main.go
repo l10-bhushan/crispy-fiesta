@@ -93,10 +93,14 @@ func main() {
 	mux.HandleFunc("GET /{shortCode}", urlHandler.Redirect)
 
 	// API for users
-	// find by email
+	// Fetch all users
+	mux.HandleFunc("GET /v1/api/users/", userHandler.FetchAll)
+	// Find by email
 	mux.HandleFunc("POST /v1/api/user/", userHandler.FindByEmail)
 	// Register user
 	mux.HandleFunc("POST /v1/api/user/register", userHandler.RegisterUser)
+	// Delete user
+	mux.HandleFunc("POST /v1/api/users/{id}", userHandler.DeleteUser)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler

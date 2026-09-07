@@ -18,6 +18,38 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	}
 }
 
+// Fetch All users
+func (r *UserRepository) FetchAll(ctx context.Context) ([]models.UserResponse, error) {
+
+	// Query to fetch all the users
+	query := `SELECT id , first_name, last_name, email, created_at FROM users`
+
+	// Executing the query
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, apperrors.HandleDBErrors(err)
+	}
+
+	// Closing the connection
+	defer rows.Close()
+
+	// Creating a slice to store the rows returned from rows
+	// Here, we can use models directly without using & because we can return nil for slices
+	var users []models.UserResponse
+	for rows.Next() {
+		var user models.UserResponse
+
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.CreatedAt)
+		if err != nil {
+			return nil, apperrors.HandleDBErrors(err)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 // Fetch the user information based on email
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*models.UserResponse, error) {
 	// Below we use & because there is a difference between returning value and returning pointer
@@ -52,4 +84,19 @@ func (r *UserRepository) RegisterUser(ctx context.Context, userRequest models.Re
 	}
 
 	return user, nil
+}
+
+// Query to Delete user
+func (r *UserRepository) DeleteUser(ctx context.Context, id string) error {
+
+	// Query to delete User
+	query := "DELETE FROM users WHERE id = $1"
+
+	// Executing the query
+	_, err := r.db.Exec(ctx, query)
+	if err != nil {
+		return apperrors.HandleDBErrors(err)
+	}
+
+	return nil
 }

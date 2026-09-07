@@ -20,6 +20,21 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	}
 }
 
+// Handler to fetch all the records
+func (h *UserHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
+
+	users, err := h.service.FetchAll(r.Context())
+	if err != nil {
+		utils.WriteError(w, err)
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]any{
+		"status": "success",
+		"data":   users,
+	})
+}
+
 // Handler to find user by email
 func (h *UserHandler) FindByEmail(w http.ResponseWriter, r *http.Request) {
 
@@ -63,5 +78,20 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJsonResponse(w, http.StatusCreated, map[string]any{
 		"status": "success",
 		"data":   userResponse,
+	})
+}
+
+// Handler to delete a user
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	err := h.service.DeleteUser(r.Context(), id)
+	if err != nil {
+		utils.WriteError(w, err)
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]string{
+		"status": "success",
 	})
 }
