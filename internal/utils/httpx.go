@@ -26,6 +26,9 @@ func WriteError(w http.ResponseWriter, err error) {
 	case errors.Is(err, apperrors.ErrorInternal):
 		status = http.StatusInternalServerError
 		message = "internal server error"
+	case errors.Is(err, apperrors.ErrorUnauthorized):
+		status = http.StatusUnauthorized
+		message = "authentication failed"
 	}
 
 	WriteJsonResponse(w, status, map[string]string{

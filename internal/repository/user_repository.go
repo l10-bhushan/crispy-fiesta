@@ -22,7 +22,7 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 func (r *UserRepository) FetchAll(ctx context.Context) ([]models.UserResponse, error) {
 
 	// Query to fetch all the users
-	query := `SELECT id , first_name, last_name, email, created_at FROM users`
+	query := `SELECT id , first_name, last_name, email, password, created_at FROM users`
 
 	// Executing the query
 	rows, err := r.db.Query(ctx, query)
@@ -39,7 +39,7 @@ func (r *UserRepository) FetchAll(ctx context.Context) ([]models.UserResponse, e
 	for rows.Next() {
 		var user models.UserResponse
 
-		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.CreatedAt)
+		err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.CreatedAt)
 		if err != nil {
 			return nil, apperrors.HandleDBErrors(err)
 		}
@@ -59,9 +59,9 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*models
 	// but if we use user := models.UserResponse. while returning we will have to pass an empty struct
 	// i.e return models.UserResponse, error
 	user := &models.UserResponse{}
-	query := `SELECT id, first_name, last_name, email, created_at FROM users WHERE email = $1`
+	query := `SELECT id, first_name, last_name, email, password, created_at FROM users WHERE email = $1`
 
-	err := r.db.QueryRow(ctx, query, email).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.CreatedAt)
+	err := r.db.QueryRow(ctx, query, email).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.CreatedAt)
 	if err != nil {
 		return nil, apperrors.HandleDBErrors(err)
 	}

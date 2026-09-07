@@ -81,6 +81,38 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Handler for user login
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+
+	// Creating an instance of LoginRequest
+	var loginRequest models.LoginRequest
+
+	// Storing email and password in our instance
+	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
+		utils.WriteError(w, apperrors.ErrorInvalidInput)
+		return
+	}
+
+	// Checking if any of the fields are empty
+	if loginRequest.Email == "" || loginRequest.Password == "" {
+		utils.WriteError(w, apperrors.ErrorInvalidInput)
+		return
+	}
+
+	// Calling the login service
+	userResponse, err := h.service.Login(r.Context(), loginRequest)
+	if err != nil {
+		utils.WriteError(w, err)
+		return
+	}
+
+	utils.WriteJsonResponse(w, http.StatusOK, map[string]any{
+		"status": "success",
+		"user":   userResponse,
+	})
+
+}
+
 // Handler to delete a user
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")

@@ -12,6 +12,7 @@ var (
 	ErrorInternal     = errors.New("internal server error")
 	ErrorInvalidInput = errors.New("invalid input")
 	ErrorConflict     = errors.New("resource already exists")
+	ErrorUnauthorized = errors.New("authentication failed")
 )
 
 func HandleDBErrors(err error) error {

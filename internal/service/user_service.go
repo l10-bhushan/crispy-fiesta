@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
@@ -90,4 +91,31 @@ func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+// Service for user login
+func (s *UserService) Login(ctx context.Context, loginRequest models.LoginRequest) (*models.UserResponse, error) {
+
+	// validating the email for correct format
+	if !utils.ValidateEmail(loginRequest.Email) {
+		return nil, apperrors.ErrorInvalidInput
+	}
+
+	// We are using FindByEmail to fetch user data based on email
+	userResponse, err := s.repo.FindByEmail(ctx, loginRequest.Email)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrorNotFound) {
+			return nil, apperrors.ErrorUnauthorized
+		}
+		return nil, err
+	}
+
+	// Checking if the password matches, if not we return error
+	if err := bcrypt.CompareHashAndPassword([]byte(userResponse.Password), []byte(loginRequest.Password)); err != nil {
+		return nil, apperrors.ErrorUnauthorized
+	}
+
+	// Returning the user information if password matches
+	return userResponse, nil
+
 }

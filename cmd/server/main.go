@@ -94,13 +94,15 @@ func main() {
 
 	// API for users
 	// Fetch all users
-	mux.HandleFunc("GET /v1/api/users/", userHandler.FetchAll)
+	mux.HandleFunc("GET /v1/api/user/", userHandler.FetchAll)
 	// Find by email
 	mux.HandleFunc("POST /v1/api/user/", userHandler.FindByEmail)
 	// Register user
 	mux.HandleFunc("POST /v1/api/user/register", userHandler.RegisterUser)
+	// Login user
+	mux.HandleFunc("POST /v1/api/user/login", userHandler.Login)
 	// Delete user
-	mux.HandleFunc("POST /v1/api/users/{id}", userHandler.DeleteUser)
+	mux.HandleFunc("POST /v1/api/user/{id}", userHandler.DeleteUser)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
