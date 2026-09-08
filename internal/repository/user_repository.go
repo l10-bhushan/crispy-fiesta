@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
@@ -74,12 +75,13 @@ func (r *UserRepository) RegisterUser(ctx context.Context, userRequest models.Re
 	user := &models.UserResponse{}
 
 	// Query to create user data
-	query := `INSERT INTO users (first_name, last_name, email , password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email, created_at`
+	query := `INSERT INTO users (first_name, last_name, email , password, username) VALUES ($1, $2, $3, $4, $5) RETURNING id, first_name, last_name, email, username, created_at`
 
 	// Executing the query
-	err := r.db.QueryRow(ctx, query, userRequest.FirstName, userRequest.LastName, userRequest.Email, userRequest.Password).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.CreatedAt)
+	err := r.db.QueryRow(ctx, query, userRequest.FirstName, userRequest.LastName, userRequest.Email, userRequest.Password, userRequest.Username).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.Username, &user.CreatedAt)
 
 	if err != nil {
+		fmt.Println("Error is : ", err)
 		return nil, apperrors.HandleDBErrors(err)
 	}
 

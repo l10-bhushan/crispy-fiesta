@@ -78,37 +78,48 @@ func main() {
 	// Logger - Logs the request infromation such as method, path , requestID.
 	// Recovery - uses defer and recover to tackle panics in our code.
 
-	// Adding a route to our router
-	// A simple health router
-	r.Get("/health", handlers.HealthHandler)
-	// A simple version router
-	r.Get("/version", handlers.VersionHandler)
-	// A simple panic handler to test "Recovery" middleware
-	r.Get("/panic", handlers.PanicHandler)
+	// Route group
+	r.Route("/v1", func(r chi.Router) {
+		// Adding a route to our router
+		// A simple health router
+		r.Get("/health", handlers.HealthHandler)
+		// A simple version router
+		r.Get("/version", handlers.VersionHandler)
+		// A simple panic handler to test "Recovery" middleware
+		r.Get("/panic", handlers.PanicHandler)
 
-	// API for urls
-	// Route for creating short code
-	r.Post("/v1/api/create", urlHandler.CreateShortCode)
-	// Route to fetch all urls
-	r.Get("/v1/api/", urlHandler.FetchAllData)
-	// Route to fetch url data using id
-	r.Get("/v1/api/{id}", urlHandler.FetchById)
-	// Route to delete by id
-	r.Delete("/v1/api/{id}", urlHandler.DeleteById)
-	// Route to fetch data
-	r.Get("/{shortCode}", urlHandler.Redirect)
+		r.Route("/api", func(r chi.Router) {
+			r.Use(middleware.AuthMiddleware(cfg.JwtSecret))
+			// API for urls
+			// Route for creating short code
+			r.Post("/url/", urlHandler.CreateShortCode)
+			// Route to fetch all urls
+			r.Get("/url/", urlHandler.FetchAllData)
+			// Route to fetch url data using id
+			r.Get("/url/{id}", urlHandler.FetchById)
+			// Route to delete by id
+			r.Delete("/url/{id}", urlHandler.DeleteById)
+			// Route to fetch data
+			r.Get("/{shortCode}", urlHandler.Redirect)
 
-	// API for users
-	// Fetch all users
-	r.Get("/v1/api/user/", userHandler.FetchAll)
-	// Find by email
-	r.Post("/v1/api/user/", userHandler.FindByEmail)
-	// Register user
-	r.Post("/v1/api/user/register", userHandler.RegisterUser)
-	// Login user
-	r.Post("/v1/api/user/login", userHandler.Login)
-	// Delete user
-	r.Delete("/v1/api/user/{id}", userHandler.DeleteUser)
+			// API for users
+			// Fetch all users
+			r.Get("/user", userHandler.FetchAll)
+			// Find by email
+			r.Post("/user", userHandler.FindByEmail)
+			// Delete user
+			r.Delete("/user/{id}", userHandler.DeleteUser)
+		})
+
+		r.Route("/api/user", func(r chi.Router) {
+			// User Registration and login routes
+			// Register user
+			r.Post("/register", userHandler.RegisterUser)
+			// Login user
+			r.Post("/login", userHandler.Login)
+		})
+
+	})
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler

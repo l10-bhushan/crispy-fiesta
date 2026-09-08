@@ -3,6 +3,9 @@ package repository
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/google/uuid"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
@@ -28,7 +31,7 @@ func NewURLRepository(db *pgxpool.Pool) *URLRepository {
 
 // Function to create an entry in urls table in database
 // it takes context, shortcode, originalurl and we return the response and error
-func (r *URLRepository) Create(ctx context.Context, shortCode string, originalURL string) (*models.CreateShortURLResponse, error) {
+func (r *URLRepository) Create(ctx context.Context, shortCode string, originalURL string, userId uuid.UUID) (*models.CreateShortURLResponse, error) {
 
 	// Creating an instance of CreateShortURLResponse struct
 	// we are using & here coz this will return the address of the instance created
@@ -38,11 +41,12 @@ func (r *URLRepository) Create(ctx context.Context, shortCode string, originalUR
 	}
 
 	// Query for inserting data into our table and we are also expecting returning value
-	query := `INSERT INTO urls (short_code, original_url) VALUES ($1, $2) RETURNING id, created_at, expires_at`
+	query := `INSERT INTO urls (short_code, original_url, user_id ) VALUES ($1, $2, $3) RETURNING id, created_at, user_id`
 
 	// Using db.QueryRow to execute the query and using scan to store the returning values into our struct instance
-	err := r.db.QueryRow(ctx, query, shortCode, originalURL).Scan(&urlResponse.Id, &urlResponse.CreatedAt, &urlResponse.ExpiresAt)
+	err := r.db.QueryRow(ctx, query, shortCode, originalURL, userId).Scan(&urlResponse.Id, &urlResponse.CreatedAt, &urlResponse.UserId)
 	if err != nil {
+		fmt.Println(err)
 		return nil, apperrors.HandleDBErrors(err)
 	}
 
@@ -70,13 +74,13 @@ func (r *URLRepository) FindByShortCode(ctx context.Context, short_code string) 
 // Here, we are not using pointer return coz we can return nil when an error for slice
 // in the above example if we don't use pointer we cannot return nil, coz retuning nil for an empty
 // struct won't compile
-func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortURLResponse, error) {
+func (r *URLRepository) FetchAllData(ctx context.Context, userId uuid.UUID) ([]models.CreateShortURLResponse, error) {
 
 	// Query to fetch all the records from the urls table
-	query := `SELECT * FROM urls ORDER BY created_at DESC`
+	query := `SELECT id, short_code, original_url, created_at, user_id FROM urls WHERE user_id = $1 ORDER BY created_at DESC`
 
 	// Executing the query using r.db.Query, returns pgx.rows
-	rows, err := r.db.Query(ctx, query)
+	rows, err := r.db.Query(ctx, query, userId)
 
 	if err != nil {
 		return nil, apperrors.HandleDBErrors(err)
@@ -93,7 +97,7 @@ func (r *URLRepository) FetchAllData(ctx context.Context) ([]models.CreateShortU
 		var url models.CreateShortURLResponse
 
 		// Populating the data into respective fields
-		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt, &url.UserId)
+		err := rows.Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.UserId)
 		if err != nil {
 			return nil, apperrors.HandleDBErrors(err)
 		}
@@ -116,10 +120,10 @@ func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateS
 	url := &models.CreateShortURLResponse{}
 
 	// Query to fetch url data from the urls table
-	query := `SELECT id, short_code , original_url , created_at, expires_at FROM urls WHERE id = $1`
+	query := `SELECT id, short_code , original_url , created_at FROM urls WHERE id = $1`
 
 	// Querying from the db
-	err := r.db.QueryRow(ctx, query, id).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt, &url.ExpiresAt)
+	err := r.db.QueryRow(ctx, query, id).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt)
 	if err != nil {
 		return nil, apperrors.HandleDBErrors(err)
 	}

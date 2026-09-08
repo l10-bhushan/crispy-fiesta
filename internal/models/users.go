@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // Request structure for finding the user by email
 type FindByEmailRequest struct {
@@ -11,15 +15,17 @@ type FindByEmailRequest struct {
 type RegisterUser struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	Username  string `json:"username"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 }
 
 // Response structure for user
 type UserResponse struct {
-	Id        string    `json:"id"`
+	Id        uuid.UUID `json:"id"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
+	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"created_at"`

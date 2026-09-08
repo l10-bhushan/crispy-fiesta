@@ -64,3 +64,12 @@ func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+// Function to GetClaims from the context
+func GetClaims(ctx context.Context) (*models.JWTClaims, bool) {
+
+	// Fetch the claims from context
+	claims, ok := ctx.Value(userContextKey).(*models.JWTClaims)
+
+	return claims, ok
+}

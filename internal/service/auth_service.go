@@ -3,6 +3,8 @@ package service
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 )
@@ -20,7 +22,7 @@ func NewAuthService(jwtSecret string) *AuthService {
 }
 
 // Service to generate JWT token
-func (a *AuthService) GenerateToken(userId string) (string, error) {
+func (a *AuthService) GenerateToken(userId uuid.UUID) (string, error) {
 
 	// Creating the claims section of the JWT token
 	claims := models.JWTClaims{

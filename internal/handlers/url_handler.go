@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
+	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/service"
 	"github.com/l10-bhushan/crispy-fiesta/internal/utils"
@@ -23,6 +24,13 @@ func NewURLHandler(service *service.URLService) *URLHandler {
 // Handler to create short code
 func (h *URLHandler) CreateShortCode(w http.ResponseWriter, r *http.Request) {
 
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
+		return
+	}
+
 	// creating instance of CreateShortURLRequest
 	var req models.CreateShortURLRequest
 
@@ -34,7 +42,7 @@ func (h *URLHandler) CreateShortCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calling the service to start the process of creation
-	urlData, err := h.service.Create(r.Context(), req.Url)
+	urlData, err := h.service.Create(r.Context(), req.Url, *claims)
 	if err != nil {
 		utils.WriteError(w, err)
 		return
@@ -66,7 +74,15 @@ func (h *URLHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 
 // Fetch all handler
 func (h *URLHandler) FetchAllData(w http.ResponseWriter, r *http.Request) {
-	data, err := h.service.FetchAllData(r.Context())
+
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
+		return
+	}
+
+	data, err := h.service.FetchAllData(r.Context(), claims.UserId)
 	if err != nil {
 		utils.WriteError(w, err)
 		return

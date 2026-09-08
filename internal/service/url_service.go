@@ -4,6 +4,8 @@ package service
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/repository"
@@ -23,7 +25,7 @@ func NewURlService(repo *repository.URLRepository) *URLService {
 }
 
 // Create Service
-func (s *URLService) Create(ctx context.Context, originalURL string) (*models.CreateShortURLResponse, error) {
+func (s *URLService) Create(ctx context.Context, originalURL string, claims models.JWTClaims) (*models.CreateShortURLResponse, error) {
 	// Validating the URL using our custom validator
 	err := utils.ValidateURL(originalURL)
 	if err != nil {
@@ -35,7 +37,7 @@ func (s *URLService) Create(ctx context.Context, originalURL string) (*models.Cr
 	if err != nil {
 		return nil, err
 	}
-	data, err := s.repo.Create(ctx, shortCode, originalURL)
+	data, err := s.repo.Create(ctx, shortCode, originalURL, claims.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +59,8 @@ func (s *URLService) Redirect(ctx context.Context, shortCode string) (*models.Cr
 }
 
 // Fetch all Service
-func (s *URLService) FetchAllData(ctx context.Context) ([]models.CreateShortURLResponse, error) {
-	data, err := s.repo.FetchAllData(ctx)
+func (s *URLService) FetchAllData(ctx context.Context, userId uuid.UUID) ([]models.CreateShortURLResponse, error) {
+	data, err := s.repo.FetchAllData(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
