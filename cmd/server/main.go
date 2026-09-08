@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	"github.com/l10-bhushan/crispy-fiesta/internal/config"
 	"github.com/l10-bhushan/crispy-fiesta/internal/database"
@@ -41,7 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// This is important it will close the connection to db where program exits
+	// This is important it will close the connection to db when program exits
 	defer pool.Close()
 
 	// API flow for urls
@@ -60,13 +61,17 @@ func main() {
 
 	// Initialising router using http.NewServeMux
 	// http.NewServeMux is built in router provided by net/http package of go
-	mux := http.NewServeMux()
+
+	// Replacing http.NewServerMux()
+	// mux := http.NewServeMux()
+
+	r := chi.NewRouter()
 	// Adding middleware to the router
 	// Each middleware should wrap the previous handler so the chain is preserved.
 	// Order: RequestId -> Logger -> Recovery
-	handler := middleware.Logger(mux)
-	handler = middleware.Recovery(handler)
-	handler = middleware.RequestId(handler)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recovery)
+	r.Use(middleware.RequestId)
 
 	// The sequence of above middleware will be
 	// RequestID - will fetch the x-request-id from the header if available, or generate one and store it in request context.
@@ -75,35 +80,35 @@ func main() {
 
 	// Adding a route to our router
 	// A simple health router
-	mux.HandleFunc("GET /health", handlers.HealthHandler)
+	r.Get("/health", handlers.HealthHandler)
 	// A simple version router
-	mux.HandleFunc("GET /version", handlers.VersionHandler)
+	r.Get("/version", handlers.VersionHandler)
 	// A simple panic handler to test "Recovery" middleware
-	mux.HandleFunc("GET /panic", handlers.PanicHandler)
+	r.Get("/panic", handlers.PanicHandler)
 
 	// API for urls
 	// Route for creating short code
-	mux.HandleFunc("POST /v1/api/create", urlHandler.CreateShortCode)
+	r.Post("/v1/api/create", urlHandler.CreateShortCode)
 	// Route to fetch all urls
-	mux.HandleFunc("GET /v1/api/", urlHandler.FetchAllData)
+	r.Get("/v1/api/", urlHandler.FetchAllData)
 	// Route to fetch url data using id
-	mux.HandleFunc("GET /v1/api/{id}", urlHandler.FetchById)
+	r.Get("/v1/api/{id}", urlHandler.FetchById)
 	// Route to delete by id
-	mux.HandleFunc("DELETE /v1/api/{id}", urlHandler.DeleteById)
+	r.Delete("/v1/api/{id}", urlHandler.DeleteById)
 	// Route to fetch data
-	mux.HandleFunc("GET /{shortCode}", urlHandler.Redirect)
+	r.Get("/{shortCode}", urlHandler.Redirect)
 
 	// API for users
 	// Fetch all users
-	mux.HandleFunc("GET /v1/api/user/", userHandler.FetchAll)
+	r.Get("/v1/api/user/", userHandler.FetchAll)
 	// Find by email
-	mux.HandleFunc("POST /v1/api/user/", userHandler.FindByEmail)
+	r.Post("/v1/api/user/", userHandler.FindByEmail)
 	// Register user
-	mux.HandleFunc("POST /v1/api/user/register", userHandler.RegisterUser)
+	r.Post("/v1/api/user/register", userHandler.RegisterUser)
 	// Login user
-	mux.HandleFunc("POST /v1/api/user/login", userHandler.Login)
+	r.Post("/v1/api/user/login", userHandler.Login)
 	// Delete user
-	mux.HandleFunc("DELETE /v1/api/user/{id}", userHandler.DeleteUser)
+	r.Delete("/v1/api/user/{id}", userHandler.DeleteUser)
 
 	// Configuring the server, server has many different properties as well.
 	// But for now we will only use Addr and Handler
@@ -111,7 +116,7 @@ func main() {
 	// Handler takes the router
 	server := http.Server{
 		Addr:    ":" + cfg.HTTPPort, // Appending : to port
-		Handler: handler,
+		Handler: r,
 	}
 
 	// Starting the server as well as cheking for errors.
@@ -151,7 +156,7 @@ func main() {
 	// Meanwhile, the server is running in it's separate go routine
 	<-shutdownSignal
 
-	log.Printf("Shutdown signal received: %v", shutdownSignal)
+	log.Printf("\nShutdown signal received: %v", shutdownSignal)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 

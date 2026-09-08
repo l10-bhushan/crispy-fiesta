@@ -87,4 +87,10 @@ Table for User
 1. Understand and Implement JWT ✅
 2. Create middleware for JWT ✅
 3. Add middleware for respective routes. (protected routes) ✅
-4. Learn concepts on concurrency, cache and optimisation
+
+### Changes that need to be introduced.
+
+1. Use a router library like chi. ✅
+2. Make the routes more relevant.
+3. Add a new table called "roles".
+4. Update corresponding tables.
