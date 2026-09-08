@@ -91,6 +91,6 @@ Table for User
 ### Changes that need to be introduced.
 
 1. Use a router library like chi. ✅
-2. Add a new table called "roles".
+2. Add a new table called "roles". ✅
 3. Update corresponding tables.
 4. Make the routes more relevant.
