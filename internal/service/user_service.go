@@ -12,12 +12,14 @@ import (
 )
 
 type UserService struct {
-	repo *repository.UserRepository
+	repo        *repository.UserRepository
+	authService *AuthService
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
+func NewUserService(repo *repository.UserRepository, authService *AuthService) *UserService {
 	return &UserService{
-		repo: repo,
+		repo:        repo,
+		authService: authService,
 	}
 }
 
@@ -94,7 +96,7 @@ func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 }
 
 // Service for user login
-func (s *UserService) Login(ctx context.Context, loginRequest models.LoginRequest) (*models.UserResponse, error) {
+func (s *UserService) Login(ctx context.Context, loginRequest models.LoginRequest) (*string, error) {
 
 	// validating the email for correct format
 	if !utils.ValidateEmail(loginRequest.Email) {
@@ -115,7 +117,11 @@ func (s *UserService) Login(ctx context.Context, loginRequest models.LoginReques
 		return nil, apperrors.ErrorUnauthorized
 	}
 
+	token, err := s.authService.GenerateToken(userResponse.Id)
+	if err != nil {
+		return nil, err
+	}
 	// Returning the user information if password matches
-	return userResponse, nil
+	return &token, nil
 
 }

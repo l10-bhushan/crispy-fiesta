@@ -11,6 +11,7 @@ import (
 type Config struct {
 	DatabaseURL string
 	HTTPPort    string
+	JwtSecret   string
 }
 
 // Load function that will load env variables into config struct and return us Config
@@ -18,6 +19,7 @@ func Load() Config {
 	return Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		HTTPPort:    getEnv("HTTPPORT", "8080"),
+		JwtSecret:   os.Getenv("JWT_SECRET"), // Adding the JWT secret that will be used for signing
 	}
 }
 

@@ -53,8 +53,9 @@ func main() {
 	urlHandler := handlers.NewURLHandler(urlService)
 
 	// API flow for users
+	authService := service.NewAuthService(cfg.JwtSecret)
 	userRepo := repository.NewUserRepository(pool)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, authService)
 	userHandler := handlers.NewUserHandler(userService)
 
 	// Initialising router using http.NewServeMux

@@ -84,7 +84,7 @@ Table for User
 
 ### Tasks for Day 6:
 
-1. Understand and Implement JWT
-2. Create middleware for JWT
-3. Add middleware for respective routes. (protected routes)
+1. Understand and Implement JWT ✅
+2. Create middleware for JWT ✅
+3. Add middleware for respective routes. (protected routes) ✅
 4. Learn concepts on concurrency, cache and optimisation

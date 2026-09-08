@@ -100,7 +100,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calling the login service
-	userResponse, err := h.service.Login(r.Context(), loginRequest)
+	token, err := h.service.Login(r.Context(), loginRequest)
 	if err != nil {
 		utils.WriteError(w, err)
 		return
@@ -108,7 +108,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJsonResponse(w, http.StatusOK, map[string]any{
 		"status": "success",
-		"user":   userResponse,
+		"token":  token,
 	})
 
 }
