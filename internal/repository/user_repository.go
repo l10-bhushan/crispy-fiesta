@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
@@ -49,6 +50,24 @@ func (r *UserRepository) FetchAll(ctx context.Context) ([]models.UserResponse, e
 	}
 
 	return users, nil
+}
+
+// Fetch the user information based on email
+func (r *UserRepository) FetchUserInformation(ctx context.Context, userId uuid.UUID) (*models.UserResponse, error) {
+	// Below we use & because there is a difference between returning value and returning pointer
+	// Suppose, in the below instance we are creating a models.UserResponse and assigning the address
+	// to user variable
+	// So, while returning we can return either the struct pointer or nil. i.e users or nil
+	// but if we use user := models.UserResponse. while returning we will have to pass an empty struct
+	// i.e return models.UserResponse, error
+	user := &models.UserResponse{}
+	query := `SELECT id, first_name, last_name, email, password, created_at FROM users id = $2`
+
+	err := r.db.QueryRow(ctx, query, userId).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.CreatedAt)
+	if err != nil {
+		return nil, apperrors.HandleDBErrors(err)
+	}
+	return user, nil
 }
 
 // Fetch the user information based on email

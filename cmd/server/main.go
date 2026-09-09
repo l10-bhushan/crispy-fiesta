@@ -69,15 +69,17 @@ func main() {
 	// Adding middleware to the router
 	// Each middleware should wrap the previous handler so the chain is preserved.
 	// Order: RequestId -> Logger -> Recovery
+	r.Use(middleware.RequestId)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recovery)
-	r.Use(middleware.RequestId)
 
 	// The sequence of above middleware will be
 	// RequestID - will fetch the x-request-id from the header if available, or generate one and store it in request context.
 	// Logger - Logs the request infromation such as method, path , requestID.
 	// Recovery - uses defer and recover to tackle panics in our code.
 
+	// Redirect route
+	r.Get("/{shortCode}", urlHandler.Redirect)
 	// Route group
 	r.Route("/v1", func(r chi.Router) {
 		// Adding a route to our router
@@ -99,14 +101,12 @@ func main() {
 			r.Get("/url/{id}", urlHandler.FetchById)
 			// Route to delete by id
 			r.Delete("/url/{id}", urlHandler.DeleteById)
-			// Route to fetch data
-			r.Get("/{shortCode}", urlHandler.Redirect)
 
 			// API for users
 			// Fetch all users
-			r.Get("/user", userHandler.FetchAll)
+			r.Get("/users", userHandler.FetchAll)
 			// Find by email
-			r.Post("/user", userHandler.FindByEmail)
+			r.Get("/user", userHandler.FetchUserInformation)
 			// Delete user
 			r.Delete("/user/{id}", userHandler.DeleteUser)
 		})

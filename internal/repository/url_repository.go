@@ -114,16 +114,16 @@ func (r *URLRepository) FetchAllData(ctx context.Context, userId uuid.UUID) ([]m
 }
 
 // Fetch url data using the id
-func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateShortURLResponse, error) {
+func (r *URLRepository) GetById(ctx context.Context, id string, userId uuid.UUID) (*models.CreateShortURLResponse, error) {
 
 	// Create an instance and return the address the address is store in url
 	url := &models.CreateShortURLResponse{}
 
 	// Query to fetch url data from the urls table
-	query := `SELECT id, short_code , original_url , created_at FROM urls WHERE id = $1`
+	query := `SELECT id, short_code , original_url , created_at FROM urls WHERE id = $1 AND user_id = $2`
 
 	// Querying from the db
-	err := r.db.QueryRow(ctx, query, id).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt)
+	err := r.db.QueryRow(ctx, query, id, userId).Scan(&url.Id, &url.ShortCode, &url.URL, &url.CreatedAt)
 	if err != nil {
 		return nil, apperrors.HandleDBErrors(err)
 	}
@@ -132,11 +132,11 @@ func (r *URLRepository) GetById(ctx context.Context, id string) (*models.CreateS
 }
 
 // Delete URL data using the id
-func (r *URLRepository) DeleteById(ctx context.Context, id string) error {
+func (r *URLRepository) DeleteById(ctx context.Context, id string, userId uuid.UUID) error {
 
-	query := `DELETE FROM urls WHERE id = $1`
+	query := `DELETE FROM urls WHERE id = $1 AND user_id = $2`
 
-	commandTag, err := r.db.Exec(ctx, query, id)
+	commandTag, err := r.db.Exec(ctx, query, id, userId)
 	if err != nil {
 		return apperrors.HandleDBErrors(err)
 	}

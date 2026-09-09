@@ -96,9 +96,17 @@ func (h *URLHandler) FetchAllData(w http.ResponseWriter, r *http.Request) {
 
 // Fetch by id handler
 func (h *URLHandler) FetchById(w http.ResponseWriter, r *http.Request) {
+
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
+		return
+	}
+
 	id := string(r.PathValue("id"))
 
-	data, err := h.service.FetchByID(r.Context(), id)
+	data, err := h.service.FetchByID(r.Context(), id, claims.UserId)
 	if err != nil {
 		utils.WriteError(w, err)
 		return
@@ -112,9 +120,17 @@ func (h *URLHandler) FetchById(w http.ResponseWriter, r *http.Request) {
 
 // Delete by Id handler
 func (h *URLHandler) DeleteById(w http.ResponseWriter, r *http.Request) {
+
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
+		return
+	}
+
 	id := string(r.PathValue("id"))
 
-	err := h.service.DeleteById(r.Context(), id)
+	err := h.service.DeleteById(r.Context(), id, claims.UserId)
 	if err != nil {
 		utils.WriteError(w, err)
 		return

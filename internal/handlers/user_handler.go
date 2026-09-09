@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
+	"github.com/l10-bhushan/crispy-fiesta/internal/middleware"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/service"
 	"github.com/l10-bhushan/crispy-fiesta/internal/utils"
@@ -23,6 +24,13 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 // Handler to fetch all the records
 func (h *UserHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok || claims.Role != "admin" {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
+		return
+	}
+
 	users, err := h.service.FetchAll(r.Context())
 	if err != nil {
 		utils.WriteError(w, err)
@@ -36,19 +44,17 @@ func (h *UserHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handler to find user by email
-func (h *UserHandler) FindByEmail(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) FetchUserInformation(w http.ResponseWriter, r *http.Request) {
 
-	// Creating an instance of request
-	var request models.FindByEmailRequest
+	claims, ok := middleware.GetClaims(r.Context())
 
-	// decoding the r.Body into request
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		utils.WriteError(w, apperrors.ErrorInvalidInput)
+	if !ok {
+		utils.WriteError(w, apperrors.ErrorUnauthorized)
 		return
 	}
 
 	// Triggering the service for finding user by email
-	user, err := h.service.FindByEmail(r.Context(), request.Email)
+	user, err := h.service.FetchUserInformation(r.Context(), claims.UserId)
 	if err != nil {
 		utils.WriteError(w, err)
 		return

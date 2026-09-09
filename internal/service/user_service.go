@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/l10-bhushan/crispy-fiesta/internal/apperrors"
 	"github.com/l10-bhushan/crispy-fiesta/internal/models"
 	"github.com/l10-bhushan/crispy-fiesta/internal/repository"
@@ -35,17 +36,17 @@ func (s *UserService) FetchAll(ctx context.Context) ([]models.UserResponse, erro
 	return users, nil
 }
 
-func (s *UserService) FindByEmail(ctx context.Context, email string) (*models.UserResponse, error) {
-	// Validating the email
-	validEmail := utils.ValidateEmail(email)
+func (s *UserService) FetchUserInformation(ctx context.Context, userId uuid.UUID) (*models.UserResponse, error) {
+	// // Validating the email
+	// validEmail := utils.ValidateEmail(email)
 
-	// If email is not valid return error
-	if !validEmail {
-		return nil, apperrors.ErrorInvalidInput
-	}
+	// // If email is not valid return error
+	// if !validEmail {
+	// 	return nil, apperrors.ErrorInvalidInput
+	// }
 
 	// Return the err, if any error in db
-	user, err := s.repo.FindByEmail(ctx, email)
+	user, err := s.repo.FetchUserInformation(ctx, userId)
 	if err != nil {
 		return nil, err
 	}

@@ -69,11 +69,11 @@ func (s *URLService) FetchAllData(ctx context.Context, userId uuid.UUID) ([]mode
 }
 
 // Fetch data by Id service
-func (s *URLService) FetchByID(ctx context.Context, id string) (*models.CreateShortURLResponse, error) {
+func (s *URLService) FetchByID(ctx context.Context, id string, userID uuid.UUID) (*models.CreateShortURLResponse, error) {
 	if id == "" {
 		return nil, apperrors.ErrorInvalidInput
 	}
-	data, err := s.repo.GetById(ctx, id)
+	data, err := s.repo.GetById(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +82,13 @@ func (s *URLService) FetchByID(ctx context.Context, id string) (*models.CreateSh
 }
 
 // Delete data by Id service
-func (s *URLService) DeleteById(ctx context.Context, id string) error {
+func (s *URLService) DeleteById(ctx context.Context, id string, userId uuid.UUID) error {
 
 	if id == "" {
 		return apperrors.ErrorInvalidInput
 	}
 
-	err := s.repo.DeleteById(ctx, id)
+	err := s.repo.DeleteById(ctx, id, userId)
 	if err != nil {
 		return err
 	}
