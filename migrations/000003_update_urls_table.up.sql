@@ -1,1 +1,0 @@
-ALTER TABLE urls ADD user_id INT REFERENCES users (id);
