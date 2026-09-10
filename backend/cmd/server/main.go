@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/l10-bhushan/crispy-fiesta/internal/config"
 	"github.com/l10-bhushan/crispy-fiesta/internal/database"
@@ -66,6 +67,26 @@ func main() {
 	// mux := http.NewServeMux()
 
 	r := chi.NewRouter()
+
+	// Handling cors issue, adding our frontend URL to AllowedOrigins so that our BE doesn't block it
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{
+			"http://localhost:5173",
+		},
+		AllowedMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowedHeaders: []string{
+			"Accept",
+			"Authorization",
+			"Content-Type",
+		},
+	}))
+
 	// Adding middleware to the router
 	// Each middleware should wrap the previous handler so the chain is preserved.
 	// Order: RequestId -> Logger -> Recovery
