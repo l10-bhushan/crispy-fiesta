@@ -1,8 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pacifico&display=swap");
+
+@import "tailwindcss";
+
+:root {
+  --cream: #fffdf7;
+  --cream-secondary: #faf7ed;
+  --primary: #123c35;
+  --primary-light: #1d5148;
+  --text: #17332f;
+  --muted: #66736f;
+  --border: #e9e5d9;
+}
+
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "DM Sans", sans-serif;
+  background: var(--cream);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+/* Tailwind-style dotted background */
+
+.dot-background {
+  background-color: var(--cream);
+
+  background-image: radial-gradient(
+    rgba(18, 60, 53, 0.13) 1px,
+    transparent 1px
+  );
+
+  background-size: 20px 20px;
 }
