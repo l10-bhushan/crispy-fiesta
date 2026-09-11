@@ -1,13 +1,76 @@
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
 
 import Logo from "../components/Logo";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import { apiRequest } from "../services/api";
+import { loginRequest } from "../services/user.service";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setEmailError(validateEmail(email));
+    setPasswordError(password.trim() ? "" : "Password is required");
+
+    if (email && password) {
+      const response = await loginRequest({
+        email,
+        password,
+      });
+      localStorage.setItem("token", response.token);
+    }
+  };
+
+  function validateEmail(email: string): string {
+    if (!email.trim()) {
+      return "Email address is required.";
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address.";
+    }
+
+    return "";
+  }
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    setEmail(value);
+
+    // Remove the error as soon as the user starts correcting it
+    if (emailError) {
+      setEmailError("");
+    }
+  };
+
+  const handlePassword = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    setPassword(value);
+
+    // Remove the error as soon as the user starts correcting it
+    if (passwordError) {
+      setPasswordError("");
+    }
+  };
+
+  const handleEmailBlur = () => {
+    const error = validateEmail(email);
+
+    setEmailError(error);
+  };
 
   return (
     <div className="dot-background flex min-h-screen flex-col">
@@ -35,15 +98,19 @@ export default function Login() {
             </p>
           </div>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="relative">
               <Input
                 label="Email address"
                 type="email"
+                value={email}
                 placeholder="you@example.com"
+                onBlur={handleEmailBlur}
+                onChange={handleEmailChange}
+                error={emailError}
               />
 
-              <Mail className="absolute right-4 top-[38px] h-4 w-4 text-[#9AA39F]" />
+              <Mail className="absolute right-4 top-11 h-4 w-4 text-[#9AA39F]" />
             </div>
 
             <div className="relative">
@@ -51,12 +118,14 @@ export default function Login() {
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
+                onChange={handlePassword}
+                error={passwordError}
               />
 
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-[38px] text-[#9AA39F]"
+                className="absolute right-4 top-11 text-[#9AA39F]"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
