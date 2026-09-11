@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -7,8 +7,54 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 
 export default function Register() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    userName: "",
+    email: "",
+    password: "",
+  });
+
+  const [formError, setFormError] = useState({
+    firstNameError: "",
+    lastNameError: "",
+    userNameError: "",
+    emailError: "",
+    passwordError: "",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleInputFields = (
+    event: React.FormEvent<HTMLInputElement>,
+    field: string,
+  ) => {
+    let value = event.currentTarget.value;
+    switch (field) {
+      case "firstName":
+        setFormData((formData) => ({ ...formData, firstName: value }));
+        setFormError((formError) => ({ ...formError, firstNameError: "" }));
+        break;
+      case "lastName":
+        setFormData((formData) => ({ ...formData, lastName: value }));
+        setFormError((formError) => ({ ...formError, lastNameError: "" }));
+        break;
+      case "userName":
+        setFormData((formData) => ({ ...formData, userName: value }));
+        setFormError((formError) => ({ ...formError, userNameError: "" }));
+        break;
+      case "email":
+        setFormData((formData) => ({ ...formData, email: value }));
+        setFormError((formError) => ({ ...formError, emailError: "" }));
+        break;
+      case "password":
+        setFormData((formData) => ({ ...formData, password: value }));
+        setFormError((formError) => ({ ...formError, passwordError: "" }));
+        break;
+    }
+  };
+
+  console.log(formData);
   return (
     <div className="dot-background flex min-h-screen flex-col">
       <header className="flex items-center justify-between px-6 py-6 md:px-10">
@@ -25,7 +71,7 @@ export default function Register() {
         </p>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-10">
+      <main className="flex flex-1 items-center justify-center px-6">
         <div className="w-full max-w-md rounded-3xl border border-[#E9E5D9] bg-white p-8 shadow-[0_20px_60px_rgba(30,50,45,0.06)] md:p-10">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-[#123C35]">
@@ -39,28 +85,42 @@ export default function Register() {
 
           <form className="space-y-5">
             <div className="relative">
-              <Input label="Full name" type="text" placeholder="John Doe" />
-
-              <User className="absolute right-4 top-11 h-4 w-4 text-[#9AA39F]" />
-            </div>
-
-            {/* <div className="relative">
-              <Input label="Last name" type="text" placeholder="John Doe" />
-
-              <User className="absolute right-4 top-[38px] h-4 w-4 text-[#9AA39F]" />
+              <Input
+                label="First name"
+                type="text"
+                placeholder="John Doe"
+                onChange={(e) => handleInputFields(e, "firstName")}
+                error={formError.firstNameError}
+              />
             </div>
 
             <div className="relative">
-              <Input label="Username" type="text" placeholder="John Doe" />
+              <Input
+                label="Last name"
+                type="text"
+                placeholder="John Doe"
+                onChange={(e) => handleInputFields(e, "lastName")}
+                error={formError.lastNameError}
+              />
+            </div>
 
-              <User className="absolute right-4 top-[38px] h-4 w-4 text-[#9AA39F]" />
-            </div> */}
+            <div className="relative">
+              <Input
+                label="Username"
+                type="text"
+                placeholder="John Doe"
+                onChange={(e) => handleInputFields(e, "userName")}
+                error={formError.userNameError}
+              />
+            </div>
 
             <div className="relative">
               <Input
                 label="Email address"
                 type="email"
                 placeholder="you@example.com"
+                onChange={(e) => handleInputFields(e, "email")}
+                error={formError.emailError}
               />
 
               <Mail className="absolute right-4 top-11 h-4 w-4 text-[#9AA39F]" />
@@ -71,6 +131,8 @@ export default function Register() {
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a strong password"
+                onChange={(e) => handleInputFields(e, "password")}
+                error={formError.passwordError}
               />
 
               <button
