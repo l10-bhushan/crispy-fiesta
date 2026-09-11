@@ -1,12 +1,11 @@
 import { ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 
 import Logo from "../components/Logo";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import { apiRequest } from "../services/api";
 import { loginRequest } from "../services/user.service";
 
 export default function Login() {
