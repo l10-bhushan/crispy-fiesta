@@ -55,7 +55,7 @@ func (s *UserService) FetchUserInformation(ctx context.Context, userId uuid.UUID
 	return user, nil
 }
 
-func (s *UserService) RegisterUser(ctx context.Context, userRequest models.RegisterUser) (*models.UserResponse, error) {
+func (s *UserService) RegisterUser(ctx context.Context, userRequest models.RegisterUser) (*string, error) {
 
 	// Checking if email is valid
 	if !utils.ValidateEmail(userRequest.Email) {
@@ -81,7 +81,12 @@ func (s *UserService) RegisterUser(ctx context.Context, userRequest models.Regis
 		return nil, apperrors.HandleDBErrors(err)
 	}
 
-	return createdUser, nil
+	token, err := s.authService.GenerateToken(createdUser.Id)
+	if err != nil {
+		return nil, err
+	}
+	// Returning the user information if password matches
+	return &token, nil
 }
 
 // Service to delete User

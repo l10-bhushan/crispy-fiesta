@@ -5,12 +5,13 @@ import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import { registerRequest } from "../services/user.service";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    userName: "",
+    first_name: "",
+    last_name: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -32,15 +33,15 @@ export default function Register() {
     let value = event.currentTarget.value;
     switch (field) {
       case "firstName":
-        setFormData((formData) => ({ ...formData, firstName: value }));
+        setFormData((formData) => ({ ...formData, first_name: value }));
         setFormError((formError) => ({ ...formError, firstNameError: "" }));
         break;
       case "lastName":
-        setFormData((formData) => ({ ...formData, lastName: value }));
+        setFormData((formData) => ({ ...formData, last_name: value }));
         setFormError((formError) => ({ ...formError, lastNameError: "" }));
         break;
       case "userName":
-        setFormData((formData) => ({ ...formData, userName: value }));
+        setFormData((formData) => ({ ...formData, username: value }));
         setFormError((formError) => ({ ...formError, userNameError: "" }));
         break;
       case "email":
@@ -54,7 +55,57 @@ export default function Register() {
     }
   };
 
-  console.log(formData);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const nextErrors = {
+      firstNameError: "",
+      lastNameError: "",
+      userNameError: "",
+      emailError: "",
+      passwordError: "",
+    };
+
+    let isValid = true;
+
+    const requiredFields = [
+      { key: "firstName", label: "First name", value: formData.first_name },
+      { key: "lastName", label: "Last name", value: formData.last_name },
+      { key: "userName", label: "Username", value: formData.username },
+    ] as const;
+
+    requiredFields.forEach(({ key, label, value }) => {
+      if (!value.trim()) {
+        nextErrors[`${key}Error` as keyof typeof nextErrors] =
+          `${label} is required.`;
+        isValid = false;
+      }
+    });
+
+    if (!formData.email.trim()) {
+      nextErrors.emailError = "Email is required.";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      nextErrors.emailError = "Enter a valid email address.";
+      isValid = false;
+    }
+
+    if (!formData.password) {
+      nextErrors.passwordError = "Password is required.";
+      isValid = false;
+    } else if (formData.password.length < 8) {
+      nextErrors.passwordError = "Password must be at least 8 characters.";
+      isValid = false;
+    }
+
+    setFormError(nextErrors);
+
+    if (!isValid) return;
+
+    const response = await registerRequest(formData);
+    localStorage.setItem("token", response.token);
+  };
+
   return (
     <div className="dot-background flex min-h-screen flex-col">
       <header className="flex items-center justify-between px-6 py-6 md:px-10">
@@ -83,7 +134,7 @@ export default function Register() {
             </p>
           </div>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="relative">
               <Input
                 label="First name"

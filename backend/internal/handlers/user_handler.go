@@ -75,7 +75,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResponse, err := h.service.RegisterUser(r.Context(), userRequest)
+	token, err := h.service.RegisterUser(r.Context(), userRequest)
 	if err != nil {
 		utils.WriteError(w, err)
 		return
@@ -83,7 +83,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJsonResponse(w, http.StatusCreated, map[string]any{
 		"status": "success",
-		"data":   userResponse,
+		"token":  token,
 	})
 }
 
